@@ -1,0 +1,30 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ministore_orders
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+# Shared HMAC secret — MUST match auth-service's ministore.jwt.secret.
+ministore:
+  jwt:
+    secret: ${JWT_SECRET:1Els0GWPqFIptxuftJHAhNsAQAvi+F2msOtDihhGXGU=}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

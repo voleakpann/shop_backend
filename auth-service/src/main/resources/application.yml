@@ -1,0 +1,43 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ministore_auth
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${AUTH_GOOGLE_ID}
+            client-secret: ${AUTH_GOOGLE_SECRET}
+            scope:
+              - email
+              - profile
+
+# Shared HMAC secret used to sign JWTs. product-service MUST use the same value.
+ministore:
+  jwt:
+    secret: ${JWT_SECRET:1Els0GWPqFIptxuftJHAhNsAQAvi+F2msOtDihhGXGU=}
+    expiration-seconds: 86400
+  frontend-redirect-uri: http://localhost:3000/account
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

@@ -24,6 +24,10 @@ ministore:
   jwt:
     secret: ${JWT_SECRET:1Els0GWPqFIptxuftJHAhNsAQAvi+F2msOtDihhGXGU=}
 
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+
 eureka:
   client:
     service-url:

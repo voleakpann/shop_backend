@@ -25,8 +25,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Every order endpoint requires a valid JWT.
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                // Every order endpoint requires a valid JWT, except Stripe's webhook callback
+                // (that one is verified via the Stripe-Signature header instead).
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/orders/webhook/stripe").permitAll()
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
         return http.build();
     }

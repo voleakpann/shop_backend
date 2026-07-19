@@ -42,6 +42,9 @@ public class Order {
 
     private String status = "PENDING";
 
+    /** Stripe PaymentIntent id, set once a payment is initiated for this order. */
+    private String stripePaymentIntentId;
+
     private Instant createdAt = Instant.now();
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -130,6 +133,14 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getStripePaymentIntentId() {
+        return stripePaymentIntentId;
+    }
+
+    public void setStripePaymentIntentId(String stripePaymentIntentId) {
+        this.stripePaymentIntentId = stripePaymentIntentId;
     }
 
     public Instant getCreatedAt() {

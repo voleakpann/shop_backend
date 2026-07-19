@@ -28,4 +28,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> onUnknownProduct(UnknownProductException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
+
+    /** Order id doesn't exist, or doesn't belong to the caller → 404. */
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> onOrderNotFound(OrderNotFoundException ex) {
+        return ResponseEntity.status(404).body(Map.of("error", ex.getMessage()));
+    }
 }

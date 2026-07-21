@@ -53,6 +53,9 @@ services:
     build: ./auth-service
     restart: unless-stopped
     mem_limit: 420m
+    # Published publicly for Swagger access (needs security-group rule for :9001).
+    ports:
+      - "9001:9001"
     environment:
       SERVER_PORT: 9001
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"

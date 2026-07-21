@@ -97,11 +97,12 @@ services:
     build: ./order-service
     restart: unless-stopped
     mem_limit: 450m
-    # Published publicly for Swagger access (needs security-group rule for :2000).
+    # Published publicly for Swagger access (needs security-group rule for :9002).
+    # Note: moved off 2000 because many corporate/ISP firewalls filter that port.
     ports:
-      - "2000:2000"
+      - "9002:9002"
     environment:
-      SERVER_PORT: 2000
+      SERVER_PORT: 9002
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_orders

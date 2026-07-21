@@ -73,6 +73,9 @@ services:
     build: ./product-service
     restart: unless-stopped
     mem_limit: 420m
+    # Loopback-only publish: reachable via SSH tunnel, NOT from the internet.
+    ports:
+      - "127.0.0.1:1000:1000"
     environment:
       SERVER_PORT: 1000
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
@@ -91,6 +94,9 @@ services:
     build: ./order-service
     restart: unless-stopped
     mem_limit: 450m
+    # Loopback-only publish: reachable via SSH tunnel, NOT from the internet.
+    ports:
+      - "127.0.0.1:2000:2000"
     environment:
       SERVER_PORT: 2000
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"

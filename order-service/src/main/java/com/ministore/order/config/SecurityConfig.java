@@ -29,6 +29,8 @@ public class SecurityConfig {
                 // (that one is verified via the Stripe-Signature header instead).
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/orders/webhook/stripe").permitAll()
+                        // Swagger UI / OpenAPI docs are public
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
         return http.build();

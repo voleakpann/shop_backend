@@ -4,10 +4,16 @@
 # Config/secrets come from a .env file next to this one (see .env.example).
 # Spring Boot's relaxed env binding lets these override whatever is in each
 # service's application.yml — e.g. SPRING_DATASOURCE_URL wins over spring.datasource.url.
+#
+# mem_limit + JAVA_TOOL_OPTIONS keep each JVM within a RAM budget so the whole
+# stack fits a small (2 GB) VM. restart: unless-stopped brings services back
+# after a crash or a VM reboot.
 services:
 
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
+    mem_limit: 256m
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
@@ -22,25 +28,34 @@ services:
 
   discovery-server:
     build: ./discovery-server
+    restart: unless-stopped
+    mem_limit: 350m
     environment:
       SERVER_PORT: 7000
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
     ports:
       - "7000:7000"   # Eureka dashboard
 
   api-gateway:
     build: ./api-gateway
+    restart: unless-stopped
+    mem_limit: 350m
     ports:
       - "8000:8000"   # the ONLY port your frontend should call
     environment:
       SERVER_PORT: 8000
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
     depends_on:
       - discovery-server
 
   auth-service:
     build: ./auth-service
+    restart: unless-stopped
+    mem_limit: 420m
     environment:
       SERVER_PORT: 9001
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_auth
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
@@ -56,8 +71,11 @@ services:
 
   product-service:
     build: ./product-service
+    restart: unless-stopped
+    mem_limit: 420m
     environment:
       SERVER_PORT: 1000
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_products
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
@@ -71,8 +89,11 @@ services:
 
   order-service:
     build: ./order-service
+    restart: unless-stopped
+    mem_limit: 450m
     environment:
       SERVER_PORT: 2000
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_orders
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}

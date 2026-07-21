@@ -29,6 +29,10 @@ public class User {
     @Column(unique = true)
     private String providerId;
 
+    /** Access role: "USER" (default) or "ADMIN". Promote via SQL in the auth DB. */
+    @Column(nullable = false, columnDefinition = "varchar(32) default 'USER'")
+    private String role = "USER";
+
     private Instant createdAt = Instant.now();
 
     public User() {
@@ -75,6 +79,14 @@ public class User {
 
     public void setProviderId(String providerId) {
         this.providerId = providerId;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Instant getCreatedAt() {

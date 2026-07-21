@@ -21,8 +21,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // health/info and the login entrypoints are public
-                        .requestMatchers("/", "/error", "/actuator/**").permitAll()
+                        // health/info and the login entrypoints are public;
+                        // other actuator endpoints (env, mappings, heapdump...) must NOT be.
+                        .requestMatchers("/", "/error", "/actuator/health", "/actuator/info").permitAll()
                         // Swagger UI / OpenAPI docs are public
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())

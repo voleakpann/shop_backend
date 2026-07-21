@@ -22,22 +22,26 @@ services:
 
   discovery-server:
     build: ./discovery-server
+    environment:
+      SERVER_PORT: 7000
     ports:
-      - "8761:8761"   # Eureka dashboard
+      - "7000:7000"   # Eureka dashboard
 
   api-gateway:
     build: ./api-gateway
     ports:
-      - "8080:8080"   # the ONLY port your frontend should call
+      - "8000:8000"   # the ONLY port your frontend should call
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SERVER_PORT: 8000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
     depends_on:
       - discovery-server
 
   auth-service:
     build: ./auth-service
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SERVER_PORT: 9001
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_auth
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
@@ -53,7 +57,8 @@ services:
   product-service:
     build: ./product-service
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SERVER_PORT: 1000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_products
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
@@ -67,7 +72,8 @@ services:
   order-service:
     build: ./order-service
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SERVER_PORT: 2000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_orders
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}

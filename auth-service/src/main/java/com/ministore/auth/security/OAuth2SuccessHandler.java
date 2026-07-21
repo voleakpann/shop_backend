@@ -53,10 +53,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         user.setProviderId(providerId);
         users.save(user);
 
-        // Issue our JWT.
+        // Issue our JWT. The role is read from the DB record (never from the client),
+        // so promoting a user to ADMIN in the DB takes effect on their next login.
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", name);
         claims.put("picture", picture);
+        claims.put("role", user.getRole() == null ? "USER" : user.getRole());
         String token = jwtService.generateToken(email, claims);
 
         // Send the browser back to the frontend with the token.

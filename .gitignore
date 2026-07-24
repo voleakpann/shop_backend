@@ -17,3 +17,6 @@ target/
 
 # App config (may contain DB credentials, JWT secret, OAuth secret)
 **/src/main/resources/application.yml
+
+# Claude Code local config
+.claude/

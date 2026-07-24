@@ -144,5 +144,28 @@ services:
     depends_on:
       - api-gateway
 
+  # Reverse proxy + automatic HTTPS (Let's Encrypt). This is the public entry
+  # point: it serves the whole site at https://camministore.duckdns.org and
+  # routes to frontend / api-gateway / auth-service per ./Caddyfile.
+  # Requires security-group inbound rules for 80 and 443, and a DNS record
+  # (DuckDNS) pointing camministore.duckdns.org at this host's public IP.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    mem_limit: 128m
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - api-gateway
+      - auth-service
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:

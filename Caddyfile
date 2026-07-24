@@ -1,0 +1,12 @@
+camministore.duckdns.org {
+    # OAuth2 login endpoints must reach auth-service directly (it owns the login flow).
+    @auth path /oauth2/* /login/* /logout
+    handle @auth {
+        reverse_proxy auth-service:9001
+    }
+
+    # Everything else goes through the API gateway.
+    handle {
+        reverse_proxy api-gateway:8000
+    }
+}

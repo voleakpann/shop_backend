@@ -17,6 +17,10 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    # Published so pgAdmin/DataGrip on the host can connect (5434, since 5432
+    # is already taken by the native Windows Postgres install).
+    ports:
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro

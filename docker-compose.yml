@@ -57,11 +57,11 @@ services:
     build: ./auth-service
     restart: unless-stopped
     mem_limit: 420m
-    # Published publicly for Swagger access (needs security-group rule for :9001).
+    # Published publicly for Swagger access (needs security-group rule for :8081).
     ports:
-      - "9001:9001"
+      - "8081:8081"
     environment:
-      SERVER_PORT: 9001
+      SERVER_PORT: 8081
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:7000/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_auth

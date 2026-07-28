@@ -4,5 +4,6 @@ services:
       # Trust X-Forwarded-* headers from the Caddy reverse proxy so Spring builds
       # https:// OAuth redirect URIs (required for Google login behind HTTPS).
       - SERVER_FORWARD_HEADERS_STRATEGY=framework
-      # Where the browser is sent after a successful Google login (deployed frontend).
-      - MINISTORE_FRONTEND_REDIRECT_URI=https://camministore.duckdns.org/account
+      # Where the browser is sent after a successful Google login (deployed frontend
+      # by default; override in .env for local testing, e.g. http://localhost:3000/account).
+      - MINISTORE_FRONTEND_REDIRECT_URI=${MINISTORE_FRONTEND_REDIRECT_URI:-https://camministore.duckdns.org/account}

@@ -24,6 +24,8 @@ Google OAuth2 login issues a JWT; the Products API validates that JWT.
 | `auth-service`     | 8081 | Google OAuth2 login, upserts users, issues a signed JWT   |
 | `product-service`  | 8082 | Products REST API; validates the JWT for write operations |
 | `order-service`    | 8083 | Orders REST API; every endpoint requires a valid JWT      |
+| `comment-service`  | see compose | Comments/replies on a slug; reads public, posting needs a JWT |
+| `blog-service`     | 8085 | Blog posts REST API; reads public, authoring is ADMIN-only |
 
 Both `auth-service` and `product-service` share the same HMAC secret
 (`ministore.jwt.secret`) so the JWT signed by one is trusted by the other.
@@ -41,6 +43,15 @@ Both `auth-service` and `product-service` share the same HMAC secret
 CREATE DATABASE ministore_auth;
 CREATE DATABASE ministore_products;
 CREATE DATABASE ministore_orders;
+CREATE DATABASE ministore_comments;
+CREATE DATABASE ministore_blog;
+```
+
+`db/init.sql` runs these automatically — but **only the first time the Postgres
+volume is created**. If your volume already exists, add new databases by hand:
+
+```powershell
+docker compose exec postgres psql -U <user> -c "CREATE DATABASE ministore_blog;"
 ```
 
 Default DB user/password is `postgres`/`postgres`. Override with the
@@ -75,6 +86,8 @@ cd api-gateway      && mvn spring-boot:run
 cd auth-service     && mvn spring-boot:run    # needs the Google env vars
 cd product-service  && mvn spring-boot:run
 cd order-service    && mvn spring-boot:run
+cd comment-service  && mvn spring-boot:run
+cd blog-service     && mvn spring-boot:run
 ```
 
 ## 4. Try it
@@ -96,6 +109,48 @@ cd order-service    && mvn spring-boot:run
     -H "Content-Type: application/json" \
     -d '{"slug":"ipad","name":"iPad","price":599,"category":"Tablets","brand":"Apple","image":"","tags":["Modern"]}'
   ```
+
+## Blog API (`blog-service`)
+
+Backs the frontend's **Blog** list page and **Single Post** page. Reads are public;
+authoring requires a JWT whose `role` claim is `ADMIN`.
+
+| Method | Path | Notes |
+|--------|------|-------|
+| `GET` | `/api/posts` | Paged list, newest first. Filters: `?category=`, `?tag=`, `?q=` (title search), `?page=`, `?size=` (default 6, max 50) |
+| `GET` | `/api/posts/categories` | Category names + post counts, for the sidebar |
+| `GET` | `/api/posts/{slug}` | One article **plus** `previous`/`next` links and 3 `related` posts — the whole single-post page in one request |
+| `POST` | `/api/posts` | ADMIN. Byline comes from the JWT, never the body |
+| `PUT` | `/api/posts/{id}` | ADMIN. Keeps the original author |
+| `DELETE` | `/api/posts/{id}` | ADMIN |
+
+The list endpoint returns a stable envelope rather than Spring's `Page` shape:
+
+```json
+{ "content": [ /* PostSummary[] */ ], "page": 0, "size": 6,
+  "totalElements": 6, "totalPages": 1, "first": true, "last": true }
+```
+
+Drafts (`published: false`) are invisible to every public endpoint — an unpublished
+slug returns 404, not an empty article. A duplicate slug returns 409.
+
+Comments on a post reuse `comment-service` as-is: its `/api/comments/{slug}` is
+keyed on a plain slug string, so pass the **post** slug and threaded comments work
+with no change to that service.
+
+```bash
+# List page 2 of the Camera category
+curl "http://localhost:8080/api/posts?category=Camera&page=1&size=3"
+
+# Single post page
+curl http://localhost:8080/api/posts/top-10-small-camera-in-the-world
+
+# Publish a post (ADMIN JWT)
+curl -X POST http://localhost:8080/api/posts \
+  -H "Authorization: Bearer <ADMIN_JWT>" \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"my-post","title":"My Post","excerpt":"Teaser.","content":"Body.","category":"Camera","coverImage":"/images/blog-item1.jpg","tags":["Camera"]}'
+```
 
 ## Notes
 

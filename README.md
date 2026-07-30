@@ -30,12 +30,40 @@ Google OAuth2 login issues a JWT; the Products API validates that JWT.
 Both `auth-service` and `product-service` share the same HMAC secret
 (`ministore.jwt.secret`) so the JWT signed by one is trusted by the other.
 
+## Quick Start (Docker Compose) — Recommended
+
+```bash
+# 1. Copy the example env file and fill in your secrets
+cp .env.example .env
+
+# Edit .env and set:
+# - DB_USERNAME, DB_PASSWORD (database)
+# - JWT_SECRET (generate with: openssl rand -base64 32)
+# - AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET (from Google Cloud Console)
+# - FRONTEND_BASE_URL (http://localhost:3000 for local dev)
+# - MINISTORE_FRONTEND_REDIRECT_URI (http://localhost:3000/account for local dev)
+
+# 2. Start all services
+docker compose up --build
+
+# 3. Services are now running on:
+#    - API Gateway: http://localhost:8000
+#    - Auth Service: http://localhost:8081
+#    - Product Service: http://localhost:1000
+#    - Order Service: http://localhost:9002
+#    - Comment Service: port 9003
+#    - PostgreSQL: localhost:5432
+```
+
 ## Prerequisites
 
-- Java 17+
-- Maven 3.9+
-- PostgreSQL running on `localhost:5432`
+- Java 17+ (for manual Maven setup)
+- Maven 3.9+ (for manual Maven setup)
+- Docker & Docker Compose (recommended)
+- PostgreSQL running on `localhost:5432` (if not using Docker)
 - Google OAuth2 credentials (Client ID + Secret)
+
+## Manual Setup (Maven)
 
 ## 1. Create the databases
 

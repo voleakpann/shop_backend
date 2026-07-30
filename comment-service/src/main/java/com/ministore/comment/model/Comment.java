@@ -38,6 +38,21 @@ public class Comment {
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
+    @Column
+    private Instant editedAt;
+
+    @Column(length = 500)
+    private String userPicture;
+
+    @Column(nullable = false)
+    private Integer likeCount = 0;
+
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
+    @Column
+    private Instant deletedAt;
+
     public Long getId() {
         return id;
     }
@@ -88,5 +103,45 @@ public class Comment {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Instant getEditedAt() {
+        return editedAt;
+    }
+
+    public void setEditedAt(Instant editedAt) {
+        this.editedAt = editedAt;
+    }
+
+    public String getUserPicture() {
+        return userPicture;
+    }
+
+    public void setUserPicture(String userPicture) {
+        this.userPicture = userPicture;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Instant deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

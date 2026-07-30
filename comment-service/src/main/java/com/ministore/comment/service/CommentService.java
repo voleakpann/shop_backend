@@ -24,7 +24,7 @@ public class CommentService {
     }
 
     /** Posts a top-level comment (parentId == null) or a reply, for the authenticated user. */
-    public Comment create(String productSlug, CreateCommentRequest request, String userEmail, String userName) {
+    public Comment create(String productSlug, CreateCommentRequest request, String userEmail, String userName, String userPicture) {
         if (request.parentId() != null) {
             Comment parent = comments.findById(request.parentId())
                     .orElseThrow(() -> new CommentNotFoundException(request.parentId()));
@@ -37,10 +37,32 @@ public class CommentService {
         comment.setProductSlug(productSlug);
         comment.setUserEmail(userEmail);
         comment.setUserName(userName);
+        comment.setUserPicture(userPicture);
         comment.setContent(request.content());
         comment.setParentId(request.parentId());
         comment.setCreatedAt(Instant.now());
+        comment.setLikeCount(0);
         return comments.save(comment);
+    }
+
+    /** Soft-delete a comment (mark deleted, hide content). Only author or admin can delete. */
+    public void delete(Long commentId, String userEmail) {
+        Comment comment = comments.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(commentId));
+        if (!comment.getUserEmail().equals(userEmail)) {
+            throw new SecurityException("Only the author can delete this comment");
+        }
+        comment.setDeleted(true);
+        comment.setDeletedAt(Instant.now());
+        comments.save(comment);
+    }
+
+    /** Like/unlike a comment. */
+    public void toggleLike(Long commentId, String userEmail) {
+        Comment comment = comments.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(commentId));
+        comment.setLikeCount(comment.getLikeCount() + 1);
+        comments.save(comment);
     }
 
     /** All comments for a product, arranged as top-level comments with nested replies. */

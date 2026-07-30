@@ -38,6 +38,7 @@ class CommentServiceTest {
     private static final String OTHER_PRODUCT = "widget-2";
     private static final String EMAIL = "alice@example.com";
     private static final String NAME = "Alice";
+    private static final String PICTURE = "https://example.com/alice.jpg";
 
     private Comment saved;
 
@@ -52,7 +53,7 @@ class CommentServiceTest {
         CreateCommentRequest request = new CreateCommentRequest("hello", null);
         when(repository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Comment result = service.create(PRODUCT, request, EMAIL, NAME);
+        Comment result = service.create(PRODUCT, request, EMAIL, NAME, PICTURE);
 
         ArgumentCaptor<Comment> captor = ArgumentCaptor.forClass(Comment.class);
         verify(repository).save(captor.capture());
@@ -73,7 +74,7 @@ class CommentServiceTest {
         when(repository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         CreateCommentRequest request = new CreateCommentRequest("reply", 10L);
-        Comment result = service.create(PRODUCT, request, EMAIL, NAME);
+        Comment result = service.create(PRODUCT, request, EMAIL, NAME, PICTURE);
 
         assertThat(result.getParentId()).isEqualTo(10L);
         assertThat(result.getContent()).isEqualTo("reply");
@@ -84,7 +85,7 @@ class CommentServiceTest {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         CreateCommentRequest request = new CreateCommentRequest("orphan", 99L);
-        assertThatThrownBy(() -> service.create(PRODUCT, request, EMAIL, NAME))
+        assertThatThrownBy(() -> service.create(PRODUCT, request, EMAIL, NAME, PICTURE))
                 .isInstanceOf(CommentNotFoundException.class);
 
         verify(repository, never()).save(any());
@@ -96,7 +97,7 @@ class CommentServiceTest {
         when(repository.findById(7L)).thenReturn(Optional.of(parent));
 
         CreateCommentRequest request = new CreateCommentRequest("wrong product", 7L);
-        assertThatThrownBy(() -> service.create(PRODUCT, request, EMAIL, NAME))
+        assertThatThrownBy(() -> service.create(PRODUCT, request, EMAIL, NAME, PICTURE))
                 .isInstanceOf(MismatchedParentException.class);
 
         verify(repository, never()).save(any());

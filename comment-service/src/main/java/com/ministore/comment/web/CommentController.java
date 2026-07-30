@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,8 +45,27 @@ public class CommentController {
                                           @AuthenticationPrincipal Jwt jwt) {
         String userEmail = jwt.getSubject();
         String userName = jwt.getClaimAsString("name");
+        String userPicture = jwt.getClaimAsString("picture");
         Comment saved = commentService.create(slug, request,
-                userEmail, userName != null ? userName : userEmail);
+                userEmail, userName != null ? userName : userEmail, userPicture);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    /** Delete own comment (soft delete). */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                       @AuthenticationPrincipal Jwt jwt) {
+        String userEmail = jwt.getSubject();
+        commentService.delete(id, userEmail);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Like a comment (increment like count). */
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Void> like(@PathVariable Long id,
+                                     @AuthenticationPrincipal Jwt jwt) {
+        String userEmail = jwt.getSubject();
+        commentService.toggleLike(id, userEmail);
+        return ResponseEntity.ok().build();
     }
 }

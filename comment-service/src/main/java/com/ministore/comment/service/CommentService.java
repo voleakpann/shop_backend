@@ -72,16 +72,24 @@ public class CommentService {
         Map<Long, CommentResponse> byId = new HashMap<>();
         List<CommentResponse> roots = new ArrayList<>();
 
+        // First pass: add only non-deleted comments to the map
         for (Comment comment : flat) {
-            byId.put(comment.getId(), CommentResponse.of(comment));
+            if (!Boolean.TRUE.equals(comment.getDeleted())) {
+                byId.put(comment.getId(), CommentResponse.of(comment));
+            }
         }
+
+        // Second pass: build tree, surfacing orphaned replies (whose parent is deleted)
         for (Comment comment : flat) {
+            if (Boolean.TRUE.equals(comment.getDeleted())) {
+                continue; // Skip deleted comments entirely
+            }
             CommentResponse response = byId.get(comment.getId());
             if (comment.getParentId() == null) {
                 roots.add(response);
             } else {
                 CommentResponse parent = byId.get(comment.getParentId());
-                // Parent already deleted/missing: surface it as top-level rather than dropping it.
+                // If parent is deleted or missing, surface as top-level
                 (parent != null ? parent.replies() : roots).add(response);
             }
         }
